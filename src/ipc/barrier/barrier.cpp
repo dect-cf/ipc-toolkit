@@ -7,7 +7,7 @@ namespace ipc {
 
 double barrier_gradient(const double d, const double dhat)
 {
-    if (d <= 0.0 || d >= dhat) {
+    if ( d >= dhat) {
         return 0.0;
     }
     // b(d) = -(d - d̂)²ln(d / d̂)
@@ -15,17 +15,17 @@ double barrier_gradient(const double d, const double dhat)
     //       = (d - d̂) * (-2ln(d/d̂) - (d - d̂) / d)
     //       = (d̂ - d) * (2ln(d/d̂) - d̂/d + 1)
     //return (dhat - d) * (2 * log(d / dhat) - dhat / d + 1);
-    return 2 * (dhat - d);
+    return 2 * ( d - dhat );
 }
 
 double barrier_hessian(const double d, const double dhat)
 {
-    if (d <= 0.0 || d >= dhat) {
+    if ( d >= dhat) {
         return 0.0;
     }
     const double dhat_d = dhat / d;
     //return (dhat_d + 2) * dhat_d - 2 * log(d / dhat) - 3;
-    return -2;
+    return 2;
 }
 
 } // namespace ipc
