@@ -1,6 +1,7 @@
 set(SOURCES
   adaptive_stiffness.cpp
   adaptive_stiffness.hpp
+  barrier.cpp
   barrier.hpp
   barrier.tpp
 )
