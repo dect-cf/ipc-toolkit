@@ -33,6 +33,41 @@ VectorMax12d CollisionConstraint::compute_potential_gradient(
     return weight * grad_b * distance_grad;
 }
 
+// VectorMax12d CollisionConstraint::compute_potential_gradient(
+//     const Eigen::MatrixXd& V,
+//     const Eigen::MatrixXi& E,
+//     const Eigen::MatrixXi& F,
+//     const Eigen::MatrixXd& N,
+//     const double dhat) const
+// {
+//     // ∇b(d(x)) = b'(d(x)) * ∇d(x)
+//    const double distance = compute_signed_distance(V, E, F, N);
+//     const VectorMax12d distance_grad = compute_distance_gradient(V, E, F);
+
+//     const double grad_b = barrier_gradient(
+//         distance - minimum_distance * minimum_distance,
+//         2 * minimum_distance * dhat + dhat * dhat);
+//     return weight * grad_b * distance_grad;
+// }
+
+VectorMax12d CollisionConstraint::compute_potential_gradient(
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXi& E,
+    const Eigen::MatrixXi& F,
+    const Eigen::MatrixXd& N,
+    std::function<double( const double )> potential,
+    std::function<double( const double )> potential_gradient) const
+{
+    // ∇b(d(x)) = b'(d(x)) * ∇d(x)
+   const double distance = compute_signed_distance(V, E, F, N);
+    const VectorMax12d distance_grad = compute_distance_gradient(V, E, F);
+
+    const double grad_b = potential_gradient( distance );
+
+    return weight * grad_b * distance_grad;
+}
+      
+
 MatrixMax12d CollisionConstraint::compute_potential_hessian(
     const Eigen::MatrixXd& V,
     const Eigen::MatrixXi& E,

@@ -16,8 +16,8 @@ template <typename T> T barrier(const T& d, const double dhat)
     }
     // b(d) = -(d-d̂)²ln(d / d̂)
     const T d_minus_dhat = (d - dhat);
-    //return -d_minus_dhat * d_minus_dhat * log(d / dhat);
-    return d_minus_dhat * d_minus_dhat;
+    return -d_minus_dhat * d_minus_dhat * log(d / dhat);
+    //return d_minus_dhat * d_minus_dhat;
 }
 
 } // namespace ipc

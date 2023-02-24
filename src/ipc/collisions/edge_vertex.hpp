@@ -31,6 +31,17 @@ struct EdgeVertexConstraint : EdgeVertexCandidate, CollisionConstraint {
             V, E, F, PointEdgeDistanceType::P_E);
     }
 
+    double compute_signed_distance(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N) const override
+    {
+        // The distance type is known because of Constraints::build()
+        return EdgeVertexCandidate::compute_signed_distance(
+	   V, E, F, N, PointEdgeDistanceType::P_E);
+    }
+
     VectorMax12d compute_distance_gradient(
         const Eigen::MatrixXd& V,
         const Eigen::MatrixXi& E,

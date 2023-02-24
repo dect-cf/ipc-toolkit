@@ -35,6 +35,75 @@ auto line_line_distance(
     return line_to_line * line_to_line / normal.squaredNorm();
 }
 
+/// @brief Compute the distance between a two infinite lines in 3D.
+/// @note The distance is actually squared distance.
+/// @warning If the lines are parallel this function returns a distance of zero.
+/// @param ea0 The first vertex of the edge defining the first line.
+/// @param ea1 The second vertex of the edge defining the first line.
+/// @param na The outward normal associated with the edge defining the first line.
+/// @param ea0 The first vertex of the edge defining the second line.
+/// @param ea1 The second vertex of the edge defining the second line.
+/// @return The signed squared distance between the two lines.
+template <
+    typename DerivedEA0,
+    typename DerivedNA,
+    typename DerivedEA1,
+    typename DerivedEB0,
+   typename DerivedEB1>
+auto line_line_distance(
+    const Eigen::MatrixBase<DerivedEA0>& ea0,
+    const Eigen::MatrixBase<DerivedEA1>& ea1,
+    const Eigen::MatrixBase<DerivedNA>& na,
+    const Eigen::MatrixBase<DerivedEB0>& eb0,
+    const Eigen::MatrixBase<DerivedEB1>& eb1)
+{
+    assert(ea0.size() == 3);
+    assert(ea1.size() == 3);
+    assert(na.size() == 3);
+    assert(eb0.size() == 3);
+    assert(eb1.size() == 3);
+
+    /// These expressions can be derived by defining the lines
+    /// la(ta) = (1 - ta) * ea0 + ta * ea1
+    /// lb(tb) = (1 - tb) * eb0 + tb * eb1
+    /// and requiring that
+    /// (la(ta) - lb(tb)).dot(ea) = 0
+    /// (la(ta) - lb(tb)).dot(eb) = 0
+    /// where ea = ea1 - ea0
+    /// and eb = eb1 - eb0.
+    /// We also define d=eb0 - ea0.
+    /// This leads to the linear system
+    /// [ea*ea  ea*eb][ta] = [ea*d]
+    /// [ea*eb  eb*eb][tb] = [eb*d]
+    /// where * indicates the dot product between vectors.
+
+    const auto ea = ea1 - ea0;
+    const double ea2 = ea.squaredNorm();
+    const auto eb = eb1 - eb0;
+    const double eb2 = eb.squaredNorm();
+    const auto d = eb0 - ea0;
+
+    const double ea_d = ea.dot( d );
+    const double eb_d = eb.dot( d );
+    const double ea_eb = ea.dot( eb );
+    const double det = ( ea2 * eb2 + ea_eb * ea_eb );
+    const double inv_det = 1 / det;
+
+    const double ta = inv_det * ( ea_d * eb2 + eb_d * ea_eb );
+    const double tb = inv_det * ( ea_eb * ea_d - eb2 * eb_d );
+
+    const auto pa = ( 1 - ta ) * ea0 + ta * ea1;
+    const auto pb = ( 1 - tb ) * eb0 + tb * eb1;
+    const auto vab = pb - pa;
+
+    /// na is the outward normal associated with the first edge.
+    /// vab represents a vector pointing from the nearest point on la to the nearest point on lb.
+    /// If these vectors point in the same direction then eb is outside
+    const int s = vab.dot( na ) < 0 ? -1 : 1;
+
+    return s * vab.squaredNorm();
+}
+
 // Symbolically generated derivatives;
 namespace autogen {
     void line_line_distance_gradient(

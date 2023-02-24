@@ -1,3 +1,4 @@
+						\
 #pragma once
 
 #include <ipc/candidates/continuous_collision_candidate.hpp>
@@ -25,6 +26,14 @@ struct FaceVertexCandidate : ContinuousCollisionCandidate {
         const Eigen::MatrixXd& V,
         const Eigen::MatrixXi& E,
         const Eigen::MatrixXi& F,
+        const PointTriangleDistanceType dtype =
+            PointTriangleDistanceType::AUTO) const;
+
+    double compute_signed_distance(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N,
         const PointTriangleDistanceType dtype =
             PointTriangleDistanceType::AUTO) const;
 

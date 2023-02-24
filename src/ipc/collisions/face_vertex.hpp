@@ -35,6 +35,17 @@ struct FaceVertexConstraint : FaceVertexCandidate, CollisionConstraint {
             V, E, F, PointTriangleDistanceType::P_T);
     }
 
+    double compute_signed_distance(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N) const override
+    {
+        // The distance type is known because of Constraints::build()
+        return FaceVertexCandidate::compute_signed_distance(
+	   V, E, F, N, PointTriangleDistanceType::P_T);
+    }
+
     VectorMax12d compute_distance_gradient(
         const Eigen::MatrixXd& V,
         const Eigen::MatrixXi& E,

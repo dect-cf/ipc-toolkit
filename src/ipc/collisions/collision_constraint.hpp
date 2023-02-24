@@ -26,6 +26,12 @@ public:
         const Eigen::MatrixXi& E,
         const Eigen::MatrixXi& F) const = 0;
 
+    virtual double compute_signed_distance(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N) const = 0;
+
     virtual VectorMax12d compute_distance_gradient(
         const Eigen::MatrixXd& V,
         const Eigen::MatrixXi& E,
@@ -47,6 +53,21 @@ public:
         const Eigen::MatrixXi& E,
         const Eigen::MatrixXi& F,
         const double dhat) const;
+
+    // virtual VectorMax12d compute_potential_gradient(
+    //     const Eigen::MatrixXd& V,
+    //     const Eigen::MatrixXi& E,
+    //     const Eigen::MatrixXi& F,
+    //     const Eigen::MatrixXd& N,
+    //     const double dhat) const;
+
+    virtual VectorMax12d compute_potential_gradient(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N,
+	std::function<double( const double )> potential,
+        std::function<double( const double )> potential_gradient) const;
 
     virtual MatrixMax12d compute_potential_hessian(
         const Eigen::MatrixXd& V,

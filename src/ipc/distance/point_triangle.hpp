@@ -66,6 +66,67 @@ auto point_triangle_distance(
     }
 }
 
+/// @brief Compute the distance between a points and a triangle.
+/// @note The distance is actually squared distance.
+/// @param p The point.
+/// @param n The normal associated with the point.
+/// @param t0 The first vertex of the triangle.
+/// @param t1 The second vertex of the triangle.
+/// @param t2 The third vertex of the triangle.
+/// @param dtype The point-triangle distance type to compute.
+/// @return The distance between the point and triangle.
+template <
+    typename DerivedP,
+    typename DerivedN,
+    typename DerivedT0,
+    typename DerivedT1,
+    typename DerivedT2>
+auto point_triangle_signed_distance(
+    const Eigen::MatrixBase<DerivedP>& p,
+    const Eigen::MatrixBase<DerivedN>& n,
+    const Eigen::MatrixBase<DerivedT0>& t0,
+    const Eigen::MatrixBase<DerivedT1>& t1,
+    const Eigen::MatrixBase<DerivedT2>& t2,
+    const PointTriangleDistanceType dtype = PointTriangleDistanceType::AUTO)
+{
+    assert(p.size() == 3);
+    assert(n.size() == 3);
+    assert(t0.size() == 3);
+    assert(t1.size() == 3);
+    assert(t2.size() == 3);
+
+    switch (dtype) {
+    case PointTriangleDistanceType::P_T0:
+       return point_point_signed_distance(p, n, t0);
+
+    case PointTriangleDistanceType::P_T1:
+       return point_point_signed_distance(p, n, t1);
+
+    case PointTriangleDistanceType::P_T2:
+       return point_point_signed_distance(p, n, t2);
+
+    case PointTriangleDistanceType::P_E0:
+       return point_line_signed_distance(p, n, t0, t1);
+
+    case PointTriangleDistanceType::P_E1:
+       return point_line_signed_distance(p, n, t1, t2);
+
+    case PointTriangleDistanceType::P_E2:
+       return point_line_signed_distance(p, n, t2, t0);
+
+    case PointTriangleDistanceType::P_T:
+       return point_plane_signed_distance(p, n, t0, t1, t2);
+
+    case PointTriangleDistanceType::AUTO:
+        return point_triangle_signed_distance(
+	   p, n, t0, t1, t2, point_triangle_distance_type(p, t0, t1, t2));
+
+    default:
+        throw std::invalid_argument(
+            "Invalid distance type for point-triangle distance!");
+    }
+}
+
 /// @brief Compute the gradient of the distance between a points and a triangle.
 /// @note The distance is actually squared distance.
 /// @param[in] p The point.

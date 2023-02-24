@@ -24,6 +24,18 @@ double EdgeVertexCandidate::compute_distance(
         dtype);
 }
 
+double EdgeVertexCandidate::compute_signed_distance(
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXi& E,
+    const Eigen::MatrixXi& F,
+    const Eigen::MatrixXd& N,
+    const PointEdgeDistanceType dtype) const
+{
+    return point_edge_signed_distance(
+       V.row(vertex_index), N.row(vertex_index), V.row(E(edge_index, 0)), V.row(E(edge_index, 1)),
+        dtype);
+}
+
 VectorMax9d EdgeVertexCandidate::compute_distance_gradient(
     const Eigen::MatrixXd& V,
     const Eigen::MatrixXi& E,

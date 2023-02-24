@@ -23,6 +23,17 @@ double PlaneVertexConstraint::compute_distance(
         V.row(vertex_index).transpose(), plane_origin, plane_normal);
 }
 
+double PlaneVertexConstraint::compute_signed_distance(
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXi& E,
+    const Eigen::MatrixXi& F,
+    const Eigen::MatrixXd& N
+   ) const
+{
+    return point_plane_signed_distance(
+       V.row(vertex_index).transpose(), N.row(vertex_index).transpose(), plane_origin, plane_normal);
+}
+
 VectorMax12d PlaneVertexConstraint::compute_distance_gradient(
     const Eigen::MatrixXd& V,
     const Eigen::MatrixXi& E,

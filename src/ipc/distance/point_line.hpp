@@ -32,6 +32,40 @@ auto point_line_distance(
     }
 }
 
+/// @brief Compute the distance between a point and line in 2D or 3D.
+/// @note The distance is actually squared distance.
+/// @param p The point.
+/// @param p The outward normal at the point.
+/// @param e0 The first vertex of the edge defining the line.
+/// @param e1 The second vertex of the edge defining the line.
+/// @return The distance between the point and line.
+   template <typename DerivedP, typename DerivedN, typename DerivedE0, typename DerivedE1>
+auto point_line_signed_distance(
+    const Eigen::MatrixBase<DerivedP>& p,
+    const Eigen::MatrixBase<DerivedN>& n,
+    const Eigen::MatrixBase<DerivedE0>& e0,
+    const Eigen::MatrixBase<DerivedE1>& e1)
+{
+    assert(p.size() == 2 || p.size() == 3);
+    assert(n.size() == 2 || n.size() == 3);
+    assert(e0.size() == 2 || e0.size() == 3);
+    assert(e1.size() == 2 || e1.size() == 3);
+
+    auto e = e1 - e0;
+    auto e_unit = e.normalized();
+    auto d = p - e0;
+    auto point_to_line = d.dot( e_unit ) * e_unit - d;
+    const int s = n.dot( point_to_line ) < 0 ? -1 : 1;
+    
+    if (p.size() == 2) {
+        auto numerator =
+            (e[1] * p[0] - e[0] * p[1] + e1[0] * e0[1] - e1[1] * e0[0]);
+        return s * numerator * numerator / e.squaredNorm();
+    } else {
+        return s * cross(e0 - p, e1 - p).squaredNorm() / (e1 - e0).squaredNorm();
+    }
+}
+
 // Symbolically generated derivatives;
 namespace autogen {
     void point_line_distance_gradient_2D(

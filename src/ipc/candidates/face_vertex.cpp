@@ -24,6 +24,18 @@ double FaceVertexCandidate::compute_distance(
         V.row(F(face_index, 2)), dtype);
 }
 
+double FaceVertexCandidate::compute_signed_distance(
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXi& E,
+    const Eigen::MatrixXi& F,
+    const Eigen::MatrixXd& N,
+    const PointTriangleDistanceType dtype) const
+{
+    return point_triangle_signed_distance(
+       V.row(vertex_index), N.row(vertex_index), V.row(F(face_index, 0)), V.row(F(face_index, 1)),
+        V.row(F(face_index, 2)), dtype);
+}
+
 VectorMax12d FaceVertexCandidate::compute_distance_gradient(
     const Eigen::MatrixXd& V,
     const Eigen::MatrixXi& E,

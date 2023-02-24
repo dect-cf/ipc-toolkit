@@ -289,4 +289,87 @@ void edge_edge_distance_hessian(
     }
 }
 
+/// @brief Compute the distance between a two lines segments in 3D.
+/// @note The distance is actually squared distance.
+/// @param ea0 The first vertex of the first edge.
+/// @param na0 The normal of the first vertex of the first edge.
+/// @param ea1 The second vertex of the first edge.
+/// @param na1 The normal of the second vertex of the first edge.
+/// @param eb0 The first vertex of the second edge.
+/// @param eb0 The normal of the first vertex of the second edge.
+/// @param eb1 The second vertex of the second edge.
+/// @param eb1 The normal of the second vertex of the second edge.
+/// @param dtype The point edge distance type to compute.
+/// @return The distance between the two edges.
+template <
+    typename DerivedEA0,
+    typename DerivedNA0,
+    typename DerivedEA1,
+    typename DerivedNA1,
+    typename DerivedEB0,
+   typename DerivedNB0,
+   typename DerivedEB1,
+    typename DerivedNB1>
+auto edge_edge_signed_distance(
+    const Eigen::MatrixBase<DerivedEA0>& ea0,
+    const Eigen::MatrixBase<DerivedNA0>& na0,
+    const Eigen::MatrixBase<DerivedEA1>& ea1,
+    const Eigen::MatrixBase<DerivedNA1>& na1,
+    const Eigen::MatrixBase<DerivedEB0>& eb0,
+    const Eigen::MatrixBase<DerivedNB0>& nb0,
+    const Eigen::MatrixBase<DerivedEB1>& eb1,
+    const Eigen::MatrixBase<DerivedNB1>& nb1,
+    const EdgeEdgeDistanceType dtype = EdgeEdgeDistanceType::AUTO)
+{
+    assert(ea0.size() == 3);
+    assert(ea1.size() == 3);
+    assert(eb0.size() == 3);
+    assert(eb1.size() == 3);
+    assert(na0.size() == 3);
+    assert(na1.size() == 3);
+    assert(nb0.size() == 3);
+    assert(nb1.size() == 3);
+
+    switch (dtype) {
+    case EdgeEdgeDistanceType::EA0_EB0:
+       return point_point_signed_distance(ea0, na0, eb0);
+
+    case EdgeEdgeDistanceType::EA0_EB1:
+       return point_point_signed_distance(ea0, na0, eb1);
+
+    case EdgeEdgeDistanceType::EA1_EB0:
+       return point_point_signed_distance(ea1, na1, eb0);
+
+    case EdgeEdgeDistanceType::EA1_EB1:
+       return point_point_signed_distance(ea1, na1, eb1);
+
+    case EdgeEdgeDistanceType::EA_EB0:
+       return point_line_signed_distance(eb0, nb0, ea0, ea1);
+
+    case EdgeEdgeDistanceType::EA_EB1:
+       return point_line_signed_distance(eb1, nb1, ea0, ea1);
+
+    case EdgeEdgeDistanceType::EA0_EB:
+       return point_line_signed_distance(ea0, na0, eb0, eb1);
+
+    case EdgeEdgeDistanceType::EA1_EB:
+       return point_line_signed_distance(ea1, na1, eb0, eb1);
+
+    case EdgeEdgeDistanceType::EA_EB:
+    {
+       /// we may want to average na0 and na1
+       const auto na = 0.5 * (na1 + na0);
+       return line_line_distance(ea0, ea1, na, eb0, eb1);
+    }
+
+    case EdgeEdgeDistanceType::AUTO:
+        return edge_edge_signed_distance(
+	   ea0, na0, ea1, na1, eb0, nb0, eb1, nb1, edge_edge_distance_type(ea0, ea1, eb0, eb1));
+
+    default:
+        throw std::invalid_argument(
+            "Invalid distance type for edge-edge distance!");
+    }
+}
+
 } // namespace ipc

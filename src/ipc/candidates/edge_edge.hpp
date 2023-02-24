@@ -27,6 +27,13 @@ struct EdgeEdgeCandidate : ContinuousCollisionCandidate {
         const Eigen::MatrixXi& F,
         const EdgeEdgeDistanceType dtype = EdgeEdgeDistanceType::AUTO) const;
 
+    double compute_signed_distance(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N,
+        const EdgeEdgeDistanceType dtype = EdgeEdgeDistanceType::AUTO) const;
+
     VectorMax12d compute_distance_gradient(
         const Eigen::MatrixXd& V,
         const Eigen::MatrixXi& E,

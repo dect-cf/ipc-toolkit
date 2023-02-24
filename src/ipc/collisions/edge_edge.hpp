@@ -29,6 +29,15 @@ struct EdgeEdgeConstraint : EdgeEdgeCandidate, CollisionConstraint {
         return EdgeEdgeCandidate::compute_distance(V, E, F);
     }
 
+    double compute_signed_distance(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N) const override
+    {
+       return EdgeEdgeCandidate::compute_signed_distance(V, E, F, N);
+    }
+
     VectorMax12d compute_distance_gradient(
         const Eigen::MatrixXd& V,
         const Eigen::MatrixXi& E,
@@ -56,6 +65,14 @@ struct EdgeEdgeConstraint : EdgeEdgeCandidate, CollisionConstraint {
         const Eigen::MatrixXi& E,
         const Eigen::MatrixXi& F,
         const double dhat) const override;
+
+    VectorMax12d compute_potential_gradient(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N,
+	std::function<double(const double)> potential,
+        std::function<double(const double)> potential_gradient) const override;
 
     MatrixMax12d compute_potential_hessian(
         const Eigen::MatrixXd& V,

@@ -19,6 +19,16 @@ double VertexVertexCandidate::compute_distance(
     return point_point_distance(V.row(vertex0_index), V.row(vertex1_index));
 }
 
+double VertexVertexCandidate::compute_signed_distance(
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXi& E,
+    const Eigen::MatrixXi& F,
+    const Eigen::MatrixXd& N
+   ) const
+{
+   return point_point_signed_distance(V.row(vertex0_index), N.row(vertex0_index), V.row(vertex1_index));
+}
+
 VectorMax6d VertexVertexCandidate::compute_distance_gradient(
     const Eigen::MatrixXd& V,
     const Eigen::MatrixXi& E,

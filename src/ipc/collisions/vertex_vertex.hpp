@@ -33,6 +33,15 @@ struct VertexVertexConstraint : VertexVertexCandidate, CollisionConstraint {
         return VertexVertexCandidate::compute_distance(V, E, F);
     }
 
+    double compute_signed_distance(
+        const Eigen::MatrixXd& V,
+        const Eigen::MatrixXi& E,
+        const Eigen::MatrixXi& F,
+        const Eigen::MatrixXd& N) const override
+    {
+       return VertexVertexCandidate::compute_signed_distance(V, E, F, N);
+    }
+
     VectorMax12d compute_distance_gradient(
         const Eigen::MatrixXd& V,
         const Eigen::MatrixXi& E,

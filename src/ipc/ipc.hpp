@@ -36,6 +36,35 @@ Eigen::VectorXd compute_barrier_potential_gradient(
     const Constraints& constraint_set,
     const double dhat);
 
+/// @brief Compute the gradient of the barrier potential.
+/// @param[in] mesh The collision mesh.
+/// @param[in] V Vertices of the collision mesh.
+/// @param[in] N Vertex pseudonormals of the collision mesh.
+/// @param[in] constraint_set The set of constraints.
+/// @param[in] dhat The activation distance of the barrier.
+/// @returns The gradient of all barrier potentials (not scaled by the barrier stiffness). This will have a size of |V|.
+// Eigen::VectorXd compute_barrier_potential_gradient(
+//     const CollisionMesh& mesh,
+//     const Eigen::MatrixXd& V,
+//     const Eigen::MatrixXd& N,
+//     const Constraints& constraint_set,
+//     const double dhat);
+
+/// @brief Compute the gradient of the contact potential using a signed distance.
+/// @param[in] mesh The collision mesh.
+/// @param[in] V Vertices of the collision mesh.
+/// @param[in] N Vertex pseudonormals of the collision mesh.
+/// @param[in] constraint_set The set of constraints.
+/// @param[in] potential_gradient The gradient of the contact potential
+/// @returns The gradient of all barrier potentials (not scaled by the barrier stiffness). This will have a size of |V|.
+Eigen::VectorXd compute_potential_gradient(
+    const CollisionMesh& mesh,
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXd& N,
+    const Constraints& constraint_set,
+    std::function<double( const double )> potential,
+    std::function<double( const double )> potential_gradient);
+
 /// @brief Compute the hessian of the barrier potential.
 /// @param[in] mesh The collision mesh.
 /// @param[in] V Vertices of the collision mesh.

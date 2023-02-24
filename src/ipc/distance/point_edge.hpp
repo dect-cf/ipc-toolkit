@@ -46,6 +46,46 @@ auto point_edge_distance(
     }
 }
 
+/// @brief Compute the distance between a point and edge in 2D or 3D.
+/// @note The distance is actually squared distance.
+/// @param[in] p The point.
+/// @param[in] n The normal at the point.
+/// @param[in] e0 The first vertex of the edge.
+/// @param[in] e1 The second vertex of the edge.
+/// @param[in] dtype The point edge distance type to compute.
+/// @return The distance between the point and edge.
+   template <typename DerivedP, typename DerivedN, typename DerivedE0, typename DerivedE1>
+auto point_edge_signed_distance(
+    const Eigen::MatrixBase<DerivedP>& p,
+    const Eigen::MatrixBase<DerivedN>& n,
+    const Eigen::MatrixBase<DerivedE0>& e0,
+    const Eigen::MatrixBase<DerivedE1>& e1,
+    const PointEdgeDistanceType dtype = PointEdgeDistanceType::AUTO)
+{
+    assert(p.size() == 2 || p.size() == 3);
+    assert(e0.size() == 2 || e0.size() == 3);
+    assert(e1.size() == 2 || e1.size() == 3);
+
+    switch (dtype) {
+    case PointEdgeDistanceType::P_E0:
+       return point_point_signed_distance(p, n, e0);
+
+    case PointEdgeDistanceType::P_E1:
+       return point_point_signed_distance(p, n, e1);
+
+    case PointEdgeDistanceType::P_E:
+       return point_line_signed_distance(p, n, e0, e1);
+
+    case PointEdgeDistanceType::AUTO:
+        return point_edge_signed_distance(
+	   p, n, e0, e1, point_edge_distance_type(p, e0, e1));
+
+    default:
+        throw std::invalid_argument(
+            "Invalid distance type for point-edge distance!");
+    }
+}
+
 /// @brief Compute the gradient of the distance between a point and edge.
 /// @note The distance is actually squared distance.
 /// @param[in] p The point.

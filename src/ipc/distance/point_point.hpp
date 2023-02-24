@@ -17,6 +17,23 @@ inline auto point_point_distance(
     return (p1 - p0).squaredNorm();
 }
 
+/// @brief Compute the distance between two points.
+/// @note The distance is actually squared distance.
+/// @param[in] p0 The first point.
+/// @param[in] p0 The normal at the first point.
+/// @param[in] p1 The second point.
+/// @return The distance between p0 and p1.
+   template <typename DerivedP0, typename DerivedN0, typename DerivedP1>
+inline auto point_point_signed_distance(
+    const Eigen::MatrixBase<DerivedP0>& p0,
+    const Eigen::MatrixBase<DerivedN0>& n0,
+    const Eigen::MatrixBase<DerivedP1>& p1)
+{
+   const auto diff = (p1 - p0);
+   const int s = diff.dot( n0 ) < 0 ? -1 : 1;
+   return s * diff.squaredNorm();
+}
+
 /// @brief Compute the gradient of the distance between two points.
 /// @note The distance is actually squared distance.
 /// @param[in] p0 The first point.

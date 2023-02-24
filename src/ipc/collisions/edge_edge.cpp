@@ -32,6 +32,45 @@ double EdgeEdgeConstraint::compute_potential(
         * CollisionConstraint::compute_potential(V, E, F, dhat);
 }
 
+
+VectorMax12d EdgeEdgeConstraint::compute_potential_gradient(
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXi& E,
+    const Eigen::MatrixXi& F,
+    const Eigen::MatrixXd& N,
+    std::function<double(const double)> potential,
+    std::function<double(const double)> potential_gradient) const
+{
+    const auto& ea0 = V.row(E(edge0_index, 0));
+    const auto& na0 = N.row(E(edge0_index, 0));
+    const auto& ea1 = V.row(E(edge0_index, 1));
+    const auto& na1 = N.row(E(edge0_index, 1));
+    const auto& eb0 = V.row(E(edge1_index, 0));
+    const auto& nb0 = N.row(E(edge1_index, 0));
+    const auto& eb1 = V.row(E(edge1_index, 1));
+    const auto& nb1 = N.row(E(edge1_index, 1));
+
+    // The distance type is unknown because of mollified PP and PE
+    // constraints where also added as EE constraints.
+    const EdgeEdgeDistanceType dtype =
+        edge_edge_distance_type(ea0, ea1, eb0, eb1);
+    const double distance = edge_edge_signed_distance(ea0, na0, ea1, na1, eb0, nb0, eb1, nb1, dtype);
+    VectorMax12d distance_grad;
+    edge_edge_distance_gradient(ea0, ea1, eb0, eb1, distance_grad, dtype);
+
+    // m(x)
+    const double mollifier = edge_edge_mollifier(ea0, ea1, eb0, eb1, eps_x);
+    // ∇m(x)
+    VectorMax12d mollifier_grad;
+    edge_edge_mollifier_gradient(ea0, ea1, eb0, eb1, eps_x, mollifier_grad);
+
+    // b(d(x))
+    const double b = potential( distance );
+    const double grad_b = potential_gradient(distance);
+
+    return weight * (mollifier_grad * b + mollifier * grad_b * distance_grad);
+}
+
 VectorMax12d EdgeEdgeConstraint::compute_potential_gradient(
     const Eigen::MatrixXd& V,
     const Eigen::MatrixXi& E,

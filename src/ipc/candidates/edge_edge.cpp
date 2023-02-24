@@ -26,6 +26,22 @@ double EdgeEdgeCandidate::compute_distance(
         V.row(E(edge1_index, 0)), V.row(E(edge1_index, 1)), dtype);
 }
 
+double EdgeEdgeCandidate::compute_signed_distance(
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXi& E,
+    const Eigen::MatrixXi& F,
+    const Eigen::MatrixXd& N,
+    const EdgeEdgeDistanceType dtype) const
+{
+    // The distance type is unknown because of mollified PP and PE
+    // constraints where also added as EE constraints.
+    return edge_edge_signed_distance(
+       V.row(E(edge0_index, 0)), N.row(E(edge0_index, 0)),
+       V.row(E(edge0_index, 1)), N.row(E(edge0_index, 1)),
+       V.row(E(edge1_index, 0)), N.row(E(edge1_index, 0)),
+       V.row(E(edge1_index, 1)), N.row(E(edge1_index, 1)), dtype);
+}
+
 VectorMax12d EdgeEdgeCandidate::compute_distance_gradient(
     const Eigen::MatrixXd& V,
     const Eigen::MatrixXi& E,

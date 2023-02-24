@@ -96,6 +96,86 @@ Eigen::VectorXd compute_barrier_potential_gradient(
     return grad;
 }
 
+// Eigen::VectorXd compute_barrier_potential_gradient(
+//     const CollisionMesh& mesh,
+//     const Eigen::MatrixXd& V,
+//     const Eigen::MatrixXd& N,
+//     const Constraints& constraint_set,
+//     const double dhat)
+// {
+//     assert(V.rows() == mesh.num_vertices());
+
+//     if (constraint_set.empty()) {
+//         return Eigen::VectorXd::Zero(V.size());
+//     }
+
+//     const Eigen::MatrixXi& E = mesh.edges();
+//     const Eigen::MatrixXi& F = mesh.faces();
+
+//     int dim = V.cols();
+
+//     tbb::enumerable_thread_specific<Eigen::VectorXd> storage(
+//         Eigen::VectorXd::Zero(V.size()));
+
+//     tbb::parallel_for(
+//         tbb::blocked_range<size_t>(size_t(0), constraint_set.size()),
+//         [&](const tbb::blocked_range<size_t>& r) {
+//             auto& local_grad = storage.local();
+//             for (size_t i = r.begin(); i < r.end(); i++) {
+//                 local_gradient_to_global_gradient(
+// 		   constraint_set[i].compute_potential_gradient(V, E, F, N, dhat),
+//                     constraint_set[i].vertex_indices(E, F), dim, local_grad);
+//             }
+//         });
+
+//     Eigen::VectorXd grad = Eigen::VectorXd::Zero(V.size());
+//     for (const auto& local_grad : storage) {
+//         grad += local_grad;
+//     }
+//     return grad;
+// }
+
+Eigen::VectorXd compute_potential_gradient(
+    const CollisionMesh& mesh,
+    const Eigen::MatrixXd& V,
+    const Eigen::MatrixXd& N,
+    const Constraints& constraint_set,
+    std::function<double( const double )> potential,
+    std::function<double( const double )> potential_gradient)
+{
+    assert(V.rows() == mesh.num_vertices());
+    assert(N.rows() == mesh.num_vertices());
+
+    if (constraint_set.empty()) {
+        return Eigen::VectorXd::Zero(V.size());
+    }
+
+    const Eigen::MatrixXi& E = mesh.edges();
+    const Eigen::MatrixXi& F = mesh.faces();
+
+    int dim = V.cols();
+
+    tbb::enumerable_thread_specific<Eigen::VectorXd> storage(
+        Eigen::VectorXd::Zero(V.size()));
+
+    tbb::parallel_for(
+        tbb::blocked_range<size_t>(size_t(0), constraint_set.size()),
+        [&](const tbb::blocked_range<size_t>& r) {
+            auto& local_grad = storage.local();
+            for (size_t i = r.begin(); i < r.end(); i++) {
+                local_gradient_to_global_gradient(
+		   constraint_set[i].compute_potential_gradient(V, E, F, N, potential, potential_gradient),
+                    constraint_set[i].vertex_indices(E, F), dim, local_grad);
+            }
+        });
+
+    Eigen::VectorXd grad = Eigen::VectorXd::Zero(V.size());
+    for (const auto& local_grad : storage) {
+        grad += local_grad;
+    }
+    return grad;
+}
+
 Eigen::SparseMatrix<double> compute_barrier_potential_hessian(
     const CollisionMesh& mesh,
     const Eigen::MatrixXd& V,

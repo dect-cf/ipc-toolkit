@@ -24,6 +24,25 @@ auto point_plane_distance(
 /// @brief Compute the distance between a point and a plane.
 /// @note The distance is actually squared distance.
 /// @param p The point.
+/// @param n The outward normal at the point.
+/// @param origin The origin of the plane.
+/// @param normal The normal of the plane.
+/// @return The distance between the point and plane.
+template <typename DerivedP, typename DerivedN, typename DerivedOrigin, typename DerivedNormal>
+auto point_plane_signed_distance(
+    const Eigen::MatrixBase<DerivedP>& p,
+    const Eigen::MatrixBase<DerivedN>& n,
+    const Eigen::MatrixBase<DerivedOrigin>& origin,
+    const Eigen::MatrixBase<DerivedNormal>& normal)
+{
+    auto point_to_plane = (p - origin).dot(normal);
+    const double s = n.dot( normal ) < 0 ? -1 : 1;
+    return s * point_to_plane * point_to_plane / normal.squaredNorm();
+}
+
+/// @brief Compute the distance between a point and a plane.
+/// @note The distance is actually squared distance.
+/// @param p The point.
 /// @param t0 The first vertex of the triangle.
 /// @param t1 The second vertex of the triangle.
 /// @param t2 The third vertex of the triangle.
@@ -46,6 +65,36 @@ auto point_plane_distance(
 
     auto normal = cross(t1 - t0, t2 - t0);
     return point_plane_distance(p, t0, normal);
+}
+
+/// @brief Compute the distance between a point and a plane.
+/// @note The distance is actually squared distance.
+/// @param p The point.
+/// @param t0 The first vertex of the triangle.
+/// @param t1 The second vertex of the triangle.
+/// @param t2 The third vertex of the triangle.
+/// @return The distance between the point and plane.
+template <
+    typename DerivedP,
+    typename DerivedN,
+    typename DerivedT0,
+    typename DerivedT1,
+    typename DerivedT2>
+auto point_plane_signed_distance(
+    const Eigen::MatrixBase<DerivedP>& p,
+    const Eigen::MatrixBase<DerivedN>& n,
+    const Eigen::MatrixBase<DerivedT0>& t0,
+    const Eigen::MatrixBase<DerivedT1>& t1,
+    const Eigen::MatrixBase<DerivedT2>& t2)
+{
+    assert(p.size() == 3);
+    assert(n.size() == 3);
+    assert(t0.size() == 3);
+    assert(t1.size() == 3);
+    assert(t2.size() == 3);
+
+    auto normal = cross(t1 - t0, t2 - t0);
+    return point_plane_signed_distance(p, n, t0, normal);
 }
 
 // Symbolically generated derivatives;
