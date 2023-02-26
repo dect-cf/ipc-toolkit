@@ -25,6 +25,28 @@ TEST_CASE("Point-edge distance", "[distance][point-edge]")
     CHECK(distance == Approx(expected_distance * expected_distance));
 }
 
+TEST_CASE("Point-edge signed distance", "[signed-distance][point-edge]")
+{
+    int dim = GENERATE(2, 3);
+    double expected_distance = GENERATE(-10, -1, -1e-12, 0, 1e-12, 1, 10);
+    VectorMax3d p = VectorMax3d::Zero(dim);
+    p.y() = expected_distance;
+    VectorMax3d e0 = VectorMax3d::Zero(dim);
+    e0.x() = -10;
+    VectorMax3d e1 = VectorMax3d::Zero(dim);
+    e1.x() = 10;
+
+    {
+       VectorMax3d n = VectorMax3d::Zero(dim);
+       n.y() = -1;
+       double distance = point_line_signed_distance(p, n, e0, e1);
+       if( expected_distance > 0 )
+	  CHECK(distance == Approx(expected_distance * expected_distance));
+       else
+	  CHECK(distance == Approx(-expected_distance * expected_distance));
+    }
+}
+
 TEST_CASE("Point-edge distance all types", "[distance][point-edge]")
 {
     const double alpha = GENERATE(range(-1.0, 2.0, 0.1));

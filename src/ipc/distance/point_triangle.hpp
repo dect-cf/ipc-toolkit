@@ -94,28 +94,29 @@ auto point_triangle_signed_distance(
     assert(t0.size() == 3);
     assert(t1.size() == 3);
     assert(t2.size() == 3);
-
+    const auto normal = cross(t1 - t0, t2 - t0);
+    const int s = n.dot( normal ) > 0 ? -1 : 1;
     switch (dtype) {
     case PointTriangleDistanceType::P_T0:
-       return point_point_signed_distance(p, n, t0);
+       return s * point_point_distance(p, t0);
 
     case PointTriangleDistanceType::P_T1:
-       return point_point_signed_distance(p, n, t1);
+       return s * point_point_distance(p, t1);
 
     case PointTriangleDistanceType::P_T2:
-       return point_point_signed_distance(p, n, t2);
+       return s * point_point_distance(p, t2);
 
     case PointTriangleDistanceType::P_E0:
-       return point_line_signed_distance(p, n, t0, t1);
+       return s * point_line_distance(p, t0, t1);
 
     case PointTriangleDistanceType::P_E1:
-       return point_line_signed_distance(p, n, t1, t2);
+       return s * point_line_distance(p, t1, t2);
 
     case PointTriangleDistanceType::P_E2:
-       return point_line_signed_distance(p, n, t2, t0);
+       return s * point_line_distance(p, t2, t0);
 
     case PointTriangleDistanceType::P_T:
-       return point_plane_signed_distance(p, n, t0, t1, t2);
+       return s * point_plane_distance(p, t0, normal);
 
     case PointTriangleDistanceType::AUTO:
         return point_triangle_signed_distance(

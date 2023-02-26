@@ -1,5 +1,6 @@
 #pragma once
 
+#include<iostream>
 #include <ipc/distance/point_point.hpp>
 
 #include <Eigen/Core>
@@ -32,6 +33,33 @@ auto point_line_distance(
     }
 }
 
+
+   template <typename DerivedP, typename DerivedN, typename DerivedE0, typename DerivedE1>
+auto print_point_line_signed_distance(
+    const Eigen::MatrixBase<DerivedP>& p,
+    const Eigen::MatrixBase<DerivedN>& n,
+    const Eigen::MatrixBase<DerivedE0>& e0,
+    const Eigen::MatrixBase<DerivedE1>& e1)
+{
+    assert(p.size() == 2 || p.size() == 3);
+    assert(n.size() == 2 || n.size() == 3);
+    assert(e0.size() == 2 || e0.size() == 3);
+    assert(e1.size() == 2 || e1.size() == 3);
+
+    auto e = e1 - e0;
+    auto e_unit = e.normalized();
+    auto d = p - e0;
+    auto line_to_point_direction = d - d.dot( e_unit ) * e_unit;
+    std::cout << "p: " << p.transpose() << std::endl;
+    std::cout << "n: " << n.transpose() << std::endl;
+    std::cout << "e: " << e.transpose() << std::endl;
+    // std::cout << "e0: " << e0.transpose() << std::endl;
+    // std::cout << "e1: " << e1.transpose() << std::endl;
+    std::cout << "dir: " << line_to_point_direction.transpose() << std::endl;
+    const int s = n.dot( line_to_point_direction ) < 0 ? 1 : -1;
+    std::cout << "sign: " << s << std::endl;
+}
+
 /// @brief Compute the distance between a point and line in 2D or 3D.
 /// @note The distance is actually squared distance.
 /// @param p The point.
@@ -54,15 +82,15 @@ auto point_line_signed_distance(
     auto e = e1 - e0;
     auto e_unit = e.normalized();
     auto d = p - e0;
-    auto point_to_line = d.dot( e_unit ) * e_unit - d;
-    const int s = n.dot( point_to_line ) < 0 ? -1 : 1;
+    auto line_to_point_direction = d - d.dot( e_unit ) * e_unit;
+    const int s = n.dot( line_to_point_direction ) > 0 ? -1 : 1;
     
     if (p.size() == 2) {
         auto numerator =
-            (e[1] * p[0] - e[0] * p[1] + e1[0] * e0[1] - e1[1] * e0[0]);
+	   (e[1] * p[0] - e[0] * p[1] + e1[0] * e0[1] - e1[1] * e0[0]);
         return s * numerator * numerator / e.squaredNorm();
     } else {
-        return s * cross(e0 - p, e1 - p).squaredNorm() / (e1 - e0).squaredNorm();
+        return s * cross(d, p - e1).squaredNorm() / e.squaredNorm();
     }
 }
 

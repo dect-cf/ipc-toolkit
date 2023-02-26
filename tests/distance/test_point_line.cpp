@@ -32,6 +32,33 @@ TEST_CASE("Point-line distance", "[distance][point-line]")
     CHECK(distance == Approx(expected_distance * expected_distance));
 }
 
+TEST_CASE("Point-line signed distance", "[signed-distance][point-line]")
+{
+    int dim = GENERATE(2, 3);
+
+    double y_point = GENERATE(take(10, random(-100.0, 100.0)));
+    VectorMax3d p = VectorMax3d::Zero(dim);
+    p.y() = y_point;
+
+    double y_line = GENERATE(take(10, random(-100.0, 100.0)));
+    VectorMax3d e0 = VectorMax3d::Zero(dim);
+    VectorMax3d e1 = VectorMax3d::Zero(dim);
+    e0.x() = -1;
+    e0.y() = y_line;
+    e1.x() = 1;
+    e1.y() = y_line;
+
+    int normal_val = GENERATE(-1, 1);
+
+    VectorMax3d n = VectorMax3d::Zero(dim);
+    n[ 1 ] = normal_val;
+
+    double distance = point_line_signed_distance(p, n, e0, e1);
+    double expected_distance = std::abs(y_point - y_line);
+    int expected_sign = (y_point - y_line) * normal_val > 0 ? -1 : 1;
+    CHECK(distance == Approx(expected_sign * expected_distance * expected_distance));
+}
+
 TEST_CASE("Point-line distance 2", "[distance][point-line]")
 {
     const double alpha = GENERATE(range(-1.0, 2.0, 0.1));

@@ -2,6 +2,7 @@
 
 #include <ipc/utils/eigen_ext.hpp>
 #include <Eigen/Geometry>
+#include <iostream>
 
 namespace ipc {
 
@@ -36,7 +37,15 @@ auto point_plane_signed_distance(
     const Eigen::MatrixBase<DerivedNormal>& normal)
 {
     auto point_to_plane = (p - origin).dot(normal);
-    const double s = n.dot( normal ) < 0 ? -1 : 1;
+    const double s = n.dot( normal ) > 0 ? -1 : 1;
+    // std::cout << "p: " << p.transpose() << std::endl;
+    // std::cout << "n: " << n.transpose() << std::endl;
+    // std::cout << "origin: " << origin.transpose() << std::endl;
+    // std::cout << "normal: " << normal.transpose() << std::endl;
+    // std::cout << "p - origin: " << (p - origin).transpose() << std::endl;
+    // std::cout << "point_to_plane: " << point_to_plane << std::endl;
+    // std::cout << "n.normal: " << n.dot( normal ) << std::endl;
+    // std::cout << "sign: " << s << std::endl;
     return s * point_to_plane * point_to_plane / normal.squaredNorm();
 }
 

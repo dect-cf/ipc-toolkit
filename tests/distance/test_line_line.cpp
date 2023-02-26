@@ -21,6 +21,19 @@ TEST_CASE("Line-line distance", "[distance][line-line]")
     CHECK(distance == Approx(expected_distance * expected_distance));
 }
 
+TEST_CASE("Line-line signed distance", "[signed-distance][line-line]")
+{
+    double ya = GENERATE(take(10, random(-100.0, 100.0)));
+    Eigen::Vector3d ea0(-1, ya, 0), ea1(1, ya, 0);
+
+    double yb = GENERATE(take(10, random(-100.0, 100.0)));
+    Eigen::Vector3d eb0(0, yb, -1), eb1(0, yb, 1);
+
+    double distance = line_line_distance(ea0, ea1, eb0, eb1);
+    double expected_distance = std::abs(ya - yb);
+    CHECK(distance == Approx(expected_distance * expected_distance));
+}
+
 TEST_CASE("Line-line distance gradient", "[distance][line-line][gradient]")
 {
     double ya = GENERATE(take(10, random(-10.0, 10.0)));

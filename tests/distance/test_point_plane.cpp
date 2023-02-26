@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include <finitediff.hpp>
+#include <iostream>
 
 #include <ipc/distance/point_plane.hpp>
 
@@ -19,6 +20,26 @@ TEST_CASE("Point-plane distance", "[distance][point-plane]")
     double distance = point_plane_distance(p, t0, t1, t2);
     double expected_distance = std::abs(y - y_plane);
     CHECK(distance == Approx(expected_distance * expected_distance));
+}
+
+TEST_CASE("Point-plane signed distance", "[signed-distance][point-plane]")
+{
+    double x = GENERATE(take(10, random(-100.0, 100.0)));
+    double y = GENERATE(take(10, random(-100.0, 100.0)));
+    double z = GENERATE(take(10, random(-100.0, 100.0)));
+    Eigen::Vector3d p(x, y, z);
+    double y_plane = GENERATE(take(10, random(-100.0, 100.0)));
+    Eigen::Vector3d n = Eigen::Vector3d( 0, y_plane, 0 ).normalized();
+    Eigen::Vector3d t0(-1, y_plane, 0), t1(1, y_plane, -1), t2(1, y_plane, 0);
+    Eigen::Vector3d plane_normal = ( t1 - t0 ).cross( t2 - t0 );
+    double distance = point_plane_signed_distance(p, n, t0, t1, t2);
+    double expected_distance = std::abs(y - y_plane);
+    if( n.dot( plane_normal ) < 0 )
+       CHECK(distance == Approx(expected_distance * expected_distance));
+    else
+    {
+       CHECK(distance == Approx(-expected_distance * expected_distance));
+    }
 }
 
 TEST_CASE("Point-plane distance gradient", "[distance][point-plane][gradient]")
